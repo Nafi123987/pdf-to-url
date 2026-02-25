@@ -2,24 +2,43 @@
 <html>
 <head>
 <title>PDF to URL Converter</title>
-<meta charset="UTF-8">
 </head>
-<body style="font-family: Arial; text-align:center; margin-top:50px;">
+<body style="font-family:Arial;text-align:center;margin-top:50px;">
 
-<h2>PDF to URL Converter</h2>
+<h2>Upload PDF and Get Permanent URL</h2>
 
-<input type="file" accept="application/pdf" onchange="convertPDF(event)">
+<input type="file" id="file">
+<button onclick="uploadPDF()">Upload</button>
+
 <p id="result"></p>
 
 <script>
-function convertPDF(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+async function uploadPDF() {
 
-    const url = URL.createObjectURL(file);
+const file = document.getElementById("file").files[0];
 
-    document.getElementById("result").innerHTML =
-    "Your PDF URL:<br><a href='" + url + "' target='_blank'>" + url + "</a>";
+if(!file){
+alert("Select PDF");
+return;
+}
+
+const formData = new FormData();
+formData.append("file", file);
+formData.append("upload_preset", "unsigned_preset");
+
+const cloudName = "dhjjqb8ix";
+
+const res = await fetch(
+`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+{
+method: "POST",
+body: formData
+});
+
+const data = await res.json();
+
+document.getElementById("result").innerHTML =
+`<a href="${data.secure_url}" target="_blank">${data.secure_url}</a>`;
 }
 </script>
 
