@@ -2,44 +2,70 @@
 <html>
 <head>
 <title>PDF to URL Converter</title>
+<meta charset="UTF-8">
 </head>
+
 <body style="font-family:Arial;text-align:center;margin-top:50px;">
 
-<h2>Upload PDF and Get Permanent URL</h2>
+<h2>PDF to URL Converter (Permanent Link)</h2>
 
-<input type="file" id="file">
-<button onclick="uploadPDF()">Upload</button>
+<input type="file" id="file" accept="application/pdf">
+<br><br>
+<button onclick="uploadPDF()">Upload PDF</button>
 
 <p id="result"></p>
 
 <script>
-async function uploadPDF() {
+
+async function uploadPDF(){
 
 const file = document.getElementById("file").files[0];
 
 if(!file){
-alert("Select PDF");
+alert("Please select PDF");
 return;
 }
 
+const cloudName = "dhjjqb8ix";
+const uploadPreset = "pdf_upload";
+
 const formData = new FormData();
 formData.append("file", file);
-formData.append("upload_preset", "pdf_upload");
+formData.append("upload_preset", uploadPreset);
 
-const cloudName = "dhjjqb8ix";
+const url = `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`;
 
-const res = await fetch(
-`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
-{
-method: "POST",
-body: formData
+try{
+
+const response = await fetch(url,{
+method:"POST",
+body:formData
 });
 
-const data = await res.json();
+const data = await response.json();
+
+if(data.secure_url){
 
 document.getElementById("result").innerHTML =
-`<a href="${data.secure_url}" target="_blank">${data.secure_url}</a>`;
+`Permanent URL:<br>
+<a href="${data.secure_url}" target="_blank">${data.secure_url}</a>`;
+
+}else{
+
+document.getElementById("result").innerHTML =
+"Upload failed. Check preset and cloud name.";
+
 }
+
+}catch(error){
+
+document.getElementById("result").innerHTML =
+"Error uploading PDF.";
+
+}
+
+}
+
 </script>
 
 </body>
