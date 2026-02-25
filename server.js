@@ -33,11 +33,13 @@ if(!req.file){
 return res.send("Upload failed");
 }
 
-const url = `${req.protocol}://${req.get("host")}/files/${req.file.filename}`;
+// IMPORTANT: use https always
+const url = `https://${req.get("host")}/files/${req.file.filename}`;
 
 res.send(`
 <p>Upload successful</p>
-<a href="${url}" target="_blank">${url}</a>
+<p><a href="${url}" target="_blank">${url}</a></p>
+<button onclick="navigator.clipboard.writeText('${url}')">Copy Link</button>
 `);
 
 });
