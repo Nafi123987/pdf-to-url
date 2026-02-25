@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PDF to URL Converter</title>
+<meta charset="UTF-8">
+</head>
+<body style="font-family: Arial; text-align:center; margin-top:50px;">
+
+<h2>PDF to URL Converter</h2>
+
+<input type="file" accept="application/pdf" onchange="convertPDF(event)">
+<p id="result"></p>
+
+<script>
+function convertPDF(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+
+    document.getElementById("result").innerHTML =
+    "Your PDF URL:<br><a href='" + url + "' target='_blank'>" + url + "</a>";
+}
+</script>
+
+</body>
+</html>
