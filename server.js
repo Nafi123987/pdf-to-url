@@ -7,14 +7,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Ensure uploads folder exists
-if (!fs.existsSync("uploads")) {
-    fs.mkdirSync("uploads");
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
 }
 
-// Serve uploaded PDFs publicly
-app.use("/files", express.static(path.join(__dirname, "uploads")));
+// Serve files publicly
+app.use("/files", express.static(uploadDir));
 
-// Home page
+// Root route (IMPORTANT)
 app.get("/", (req, res) => {
   res.send(`
     <h2>PDF to URL Converter</h2>
@@ -25,51 +26,35 @@ app.get("/", (req, res) => {
   `);
 });
 
-// Multer storage config
+// Multer config
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
+  destination: uploadDir,
   filename: (req, file, cb) => {
-    const uniqueName = Date.now() + ".pdf";
-    cb(null, uniqueName);
+    cb(null, Date.now() + ".pdf");
   },
 });
 
-// PDF filter
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === "application/pdf") {
-    cb(null, true);
-  } else {
-    cb(new Error("Only PDF files allowed"), false);
-  }
-};
-
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-});
+const upload = multer({ storage });
 
 // Upload route
 app.post("/upload", upload.single("pdf"), (req, res) => {
 
   if (!req.file) {
-    return res.status(400).send("No file uploaded");
+    return res.send("No file uploaded");
   }
 
-  // Generate public URL
   const fileUrl = `${req.protocol}://${req.get("host")}/files/${req.file.filename}`;
 
   res.send(`
-    <h3>✅ PDF uploaded successfully!</h3>
-    <p>Public URL:</p>
+    <h3>Upload successful</h3>
     <a href="${fileUrl}" target="_blank">${fileUrl}</a>
     <br><br>
-    <a href="/">Upload another PDF</a>
+    <a href="/">Upload another</a>
   `);
+
 });
 
-// Start server (ONLY ONCE)
+// Listen
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port " + PORT);
 });
